@@ -4369,6 +4369,8 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
           player.osc.stop(audioCtx.currentTime+0.2)
         }
         // update sound frequency on the 1/2 beat
+        //player1.osc.frequency.value = freqs[Math.floor(10*(1-player1.curY))]
+
       }
       setTimeout(playLoop,200);
 
