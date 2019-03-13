@@ -4197,6 +4197,7 @@ class Player {
     this.notes=[]
     this.pressed=false
     this.playing=false
+    this.pPlaying=false // previously Playing
     this.gainNode={}
     this.playSound=this.playSound.bind(this)
     this.stopPlaying=this.stopPlaying.bind(this)
@@ -4206,7 +4207,6 @@ class Player {
   playSound(e){
     this.pressed=true;
     this.playing=true;
-
   }
   updateSound(e) {
 
@@ -4214,8 +4214,8 @@ class Player {
   }
 
   stopPlaying(e){
-    this.playing=false;
     this.pressed=false
+
     /*this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
     this.osc.stop(audioCtx.currentTime+1)
     this.gainNode={}
@@ -4291,7 +4291,6 @@ function emit(){
 socket.on('drawing', updatePlayer);
 
 
-setInterval(emit,50)
 
 
 
@@ -4303,9 +4302,6 @@ function updatePlayer(msg){
   let player=players.find(player => player.id == msg.id)
 if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   Object.assign(player, {curX: msg.curX}, {curY: msg.curY}, {pressed: msg.pressed})
-  if(!player.pressed && player.playing){ player.stopPlaying()}
-  else if (!player.playing && player.pressed){player.playSound()}
-  else{player.updateSound()}
 }
 
 
@@ -4333,15 +4329,20 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   var canvasCtx = canvas.getContext('2d');
-  let beat=true // false when in between beats
+  let beat=0 // 0 ||1, whether we are between beats
 
   function playLoop(){
     // sounds play only on beat. Notes can change on 1/2 beat
-
-
+    beat= beat<3 ? beat+1 : 0
+    canvasCtx.clearRect(0,0,WIDTH,HEIGHT)
     for(player of players){
-        if(player.playing){
-            // plays new sound only on the beat
+      // if we are in between beats, and player started playing (mousedown),
+      // then play a note until the next beat
+
+          // play new sound, on the beat, for a beat
+
+          if(player.playing && !beat){
+          player.pPlaying=true
           let osc = audioCtx.createOscillator();
           osc.setPeriodicWave(hornTable);
           osc.frequency.value = freqs[Math.floor(10*(1-player.curY))]
@@ -4359,7 +4360,8 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
           //console.log(Math.floor(10*(1-this.curY)))
           //oscillator.frequency = freqs[Math.floor(10*(1-this.curY))]
           player.gainNode.gain.value =0.5-Math.abs(player.curX-0.5)/4;
-          //if(this.pressed){this.notes.unshift({x:this.curX*WIDTH,y:this.curY*HEIGHT,s:0})}
+          player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:30-beat*7})
+
           //osc.detune.value = 100; // value in cents
           //oscillator.triggerAttack(freqs[Math.floor(10*(1-this.curY))])
           osc.start(audioCtx.currentTime)
@@ -4368,11 +4370,37 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
           player.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
           player.osc.stop(audioCtx.currentTime+0.2)
         }
-        // update sound frequency on the 1/2 beat
-        //player1.osc.frequency.value = freqs[Math.floor(10*(1-player1.curY))]
+        else if(player.playing){;player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:30-beat*7})}
+        else{player.notes.unshift(null)}
+        // the users mouse is up, they are not playing
+        if(!player.pressed){player.playing=false}
+
+        let notes=player.notes
+        const curX=player.curX
+        const curY=player.curY
+      canvasCtx.beginPath();
+      canvasCtx.fillStyle = 'rgb(' + WIDTH/2 + ',' + 100 + ',' + Math.floor(curY*255)+')';
+      canvasCtx.arc(curX*WIDTH,curY*HEIGHT,20,0,360,false);
+      canvasCtx.fill();
+      canvasCtx.closePath();
+      while(notes.length>50){
+      player.notes.pop()
+      }
+
+    for(let i=0;i<notes.length;i++){
+      if(notes[i]){
+        canvasCtx.globalAlpha = (1-i/50)*0.75;
+
+        canvasCtx.beginPath();
+        canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
+        canvasCtx.ellipse(WIDTH/2-i*10,notes[i].y, 10, notes[i].s, 0, 0, Math.PI *2);
+        canvasCtx.fill();
+        canvasCtx.closePath();
+      }
+    }
 
       }
-      setTimeout(playLoop,200);
+      setTimeout(playLoop,50);
 
     }
 
@@ -4380,6 +4408,7 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   function canvasDraw() {
 
     function drawNotes(){
+      emit();
       canvasCtx.clearRect(0,0,canvas.width,canvas.height)
       canvasCtx.globalAlpha = 1;
       for (player of players){
@@ -4391,26 +4420,25 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
       canvasCtx.arc(curX*WIDTH,curY*HEIGHT,20,0,360,false);
       canvasCtx.fill();
       canvasCtx.closePath();
-      while(notes.length>25){
+      while(notes.length>50){
       player.notes.pop()
       }
-     if(player.pressed){notes.unshift({x:curX*WIDTH-10,y:curY*HEIGHT,s:Math.random()*10})}
-      else{notes.unshift(null)}
+
 
 
     for(let i=0;i<notes.length;i++){
       if(notes[i]){
-        canvasCtx.globalAlpha = 1-i/25;
+        canvasCtx.globalAlpha = 1-i/50;
 
         canvasCtx.beginPath();
         canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
-        canvasCtx.arc(WIDTH/2-i*10,notes[i].y,20-notes[i].s,(Math.PI/180)*0,(Math.PI/180)*360,false);
+        canvasCtx.arc(WIDTH/2-i*10,notes[i].y,notes[i].s,(Math.PI/180)*0,(Math.PI/180)*360,false);
         canvasCtx.fill();
         canvasCtx.closePath();
       }
     }
   }
-    setTimeout(drawNotes,25)
+    setTimeout(drawNotes,50)
     }
     drawNotes()
 
@@ -4423,7 +4451,7 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
 
   var body = document.querySelector('body');
 
-canvasDraw()
+//canvasDraw()
 playLoop()
-
+setInterval(emit,50);
  }
