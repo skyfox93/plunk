@@ -4146,20 +4146,27 @@ let notes2=[]
   notes2[13] = 349.228231433003884;
   notes2[14] = 391.995435981749294;
 
-
-
-  freqs[0] = 220.000000000000000;
-   freqs[1] = 261.625565300598634;
-   freqs[2] = 293.664767917407560;
-   freqs[3] = 329.627556912869929;
-   freqs[4] = 391.995435981749294;
-   freqs[5] = 440.000000000000000;
-   freqs[6] = 523.251130601197269;
-   freqs[7] = 587.329535834815120;
-   freqs[8] = 659.255113825739859;
-   freqs[9] = 783.990871963498588;
-   freqs[10] = 880;
-
+   freqs[0]= 55.000000000000000;
+   freqs[1]= 65.406391325149658;
+   freqs[2]= 73.416191979351890;
+   freqs[3]= 82.406889228217482;
+   freqs[4]= 97.998858995437323;
+   freqs[5]= 110.000000000000000;
+   freqs[6]= 130.812782650299317;
+   freqs[7]= 146.832383958703780;
+   freqs[8]= 164.813778456434964;
+   freqs[9]= 195.997717990874647;
+   freqs[10] = 220.000000000000000;
+   freqs[11] = 261.625565300598634;
+   freqs[12] = 293.664767917407560;
+   freqs[13] = 329.627556912869929;
+   freqs[14]= 391.995435981749294;
+   freqs[15] = 440.000000000000000;
+   freqs[16] = 523.251130601197269;
+   freqs[17] = 587.329535834815120;
+   freqs[18] = 659.255113825739859;
+   freqs[19] = 783.990871963498588;
+   freqs[20] = 880;
 
 // freqs[0] = 130.812782650299317;
 //  freqs[1] = 146.832383958703780;
@@ -4206,7 +4213,7 @@ class Player {
 
   playSound(e){
     this.pressed=true;
-    this.playing=true;
+    this.shouldPlay=true;
   }
   updateSound(e) {
 
@@ -4329,60 +4336,68 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   var canvasCtx = canvas.getContext('2d');
+    canvasCtx.lineWidth = 5;
   let beat=0 // 0 ||1, whether we are between beats
 
   function playLoop(){
     // sounds play only on beat. Notes can change on 1/2 beat
     beat= beat<3 ? beat+1 : 0
     canvasCtx.clearRect(0,0,WIDTH,HEIGHT)
+    canvasCtx.beginPath()
+    canvasCtx.strokeStyle='rgb(200,200,200)'
+
+    for(let i=0;i<20;i++){
+      canvasCtx.moveTo(0,HEIGHT/20 * i)
+      canvasCtx.lineTo(WIDTH,HEIGHT/20 * i)
+    }
+    canvasCtx.globalAlpha = 1;
+
+    canvasCtx.stroke()
+    canvasCtx.globalAlpha = 1;
+
+
     for(player of players){
       // if we are in between beats, and player started playing (mousedown),
       // then play a note until the next beat
 
           // play new sound, on the beat, for a beat
 
-          if(player.playing && !beat){
-          player.pPlaying=true
+          //if the user hit mouseDown and hasn't yet played a sound (shouldPlay)
+          //then play a sound even if the mouse isn't pressed.
+          //This allows users to play by taping the mouse or keypad.
+          if((player.shouldPlay||player.pressed) && !beat){
+            // Play a sound
           let osc = audioCtx.createOscillator();
-          osc.setPeriodicWave(hornTable);
-          osc.frequency.value = freqs[Math.floor(10*(1-player.curY))]
-          //osc.connect(audioContext.destination);
-          // if(this.gainNode.gain){this.gainNode.gain.value=0}
-          //
-          // if(this.osc.stop){this.osc.stop(audioCtx.currentTime)}
+          osc.setPeriodicWave(hornTable); //set instrument
+
+          osc.frequency.value = freqs[Math.round(20*(1-player.curY))] // set frequency
           player.gainNode = audioCtx.createGain();
-          //let oscillator = new Tone.DuoSynth().toMaster();
 
 
           osc.connect(player.gainNode);
           player.gainNode.connect(audioCtx.destination);
-          //oscillator.type = 'triangle';
-          //console.log(Math.floor(10*(1-this.curY)))
-          //oscillator.frequency = freqs[Math.floor(10*(1-this.curY))]
-          player.gainNode.gain.value =0.5-Math.abs(player.curX-0.5)/4;
-          player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:30-beat*7})
-
-          //osc.detune.value = 100; // value in cents
-          //oscillator.triggerAttack(freqs[Math.floor(10*(1-this.curY))])
+          player.gainNode.gain.value =0.5-Math.abs(player.curX-0.5)/4; // gain depends on mous position
+          player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:20}) // store it for animating the canvas
           osc.start(audioCtx.currentTime)
-
           player.osc=osc
           player.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
           player.osc.stop(audioCtx.currentTime+0.2)
+          // now that the note has been played, do not play another note unless the mouse is pressed
+          player.shouldPlay=false
         }
-        else if(player.playing){;player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:30-beat*7})}
+        //if the music is playing, but its in between beats, store the position for animation.
+        else if(player.pressed){player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:1})}
+
+        // this shifts the animation forward even when nothing is playing
         else{player.notes.unshift(null)}
-        // the users mouse is up, they are not playing
-        if(!player.pressed){player.playing=false}
 
         let notes=player.notes
         const curX=player.curX
         const curY=player.curY
       canvasCtx.beginPath();
       canvasCtx.fillStyle = 'rgb(' + WIDTH/2 + ',' + 100 + ',' + Math.floor(curY*255)+')';
-      canvasCtx.arc(curX*WIDTH,curY*HEIGHT,20,0,360,false);
+      canvasCtx.arc(WIDTH/2,curY*HEIGHT,10,0,360,false);
       canvasCtx.fill();
-      canvasCtx.closePath();
       while(notes.length>50){
       player.notes.pop()
       }
@@ -4393,7 +4408,11 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
 
         canvasCtx.beginPath();
         canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
-        canvasCtx.ellipse(WIDTH/2-i*10,notes[i].y, 10, notes[i].s, 0, 0, Math.PI *2);
+      /*  if(notes[i+1]){canvasCtx.moveTo(WIDTH/2-i*10,notes[i].y )
+          canvasCtx.lineTo(WIDTH/2-(i+1)*10,notes[i+1].y);canvasCtx.stroke()
+          canvasCtx.closePath()
+    }*/
+        canvasCtx.ellipse(WIDTH/2-i*10,Math.round(notes[i].y/HEIGHT*20)*HEIGHT/20,notes[i].s, notes[i].s, 0, 0, Math.PI *2);
         canvasCtx.fill();
         canvasCtx.closePath();
       }
@@ -4453,5 +4472,5 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
 
 //canvasDraw()
 playLoop()
-setInterval(emit,50);
+setInterval(emit,50)
  }
