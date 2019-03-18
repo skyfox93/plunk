@@ -4386,7 +4386,7 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
           player.shouldPlay=false
         }
         //if the music is playing, but its in between beats, store the position for animation.
-        else if(player.pressed){player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:1})}
+        else if(player.pressed){player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,s:10})}
 
         // this shifts the animation forward even when nothing is playing
         else{player.notes.unshift(null)}
@@ -4395,31 +4395,34 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
         const curX=player.curX
         const curY=player.curY
       canvasCtx.beginPath();
-      canvasCtx.fillStyle = 'rgb(' + WIDTH/2 + ',' + 100 + ',' + Math.floor(curY*255)+')';
+      canvasCtx.fillStyle = 'rgb(' + 100 + ',' + 100 + ',' + Math.floor(curY*255)+')';
       canvasCtx.arc(WIDTH/2,curY*HEIGHT,10,0,360,false);
       canvasCtx.fill();
       while(notes.length>50){
       player.notes.pop()
       }
 
+      canvasCtx.lineWidth=5;
+
     for(let i=0;i<notes.length;i++){
       if(notes[i]){
         canvasCtx.globalAlpha = (1-i/50)*0.75;
 
         canvasCtx.beginPath();
-        canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
-      /*  if(notes[i+1]){canvasCtx.moveTo(WIDTH/2-i*10,notes[i].y )
-          canvasCtx.lineTo(WIDTH/2-(i+1)*10,notes[i+1].y);canvasCtx.stroke()
-          canvasCtx.closePath()
+        canvasCtx.fillStyle = 'rgb(' + 255 + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
+       /*if(notes[i+1]){canvasCtx.moveTo(WIDTH/2-i*10,notes[i].y )
+          canvasCtx.lineTo(WIDTH/2-(i+1)*10,notes[i+1].y);
+          canvasCtx.strokeStyle='rgb(' + 255+ ',' + 100 + ',' + Math.floor(curY*255)+')'
+          canvasCtx.stroke()
     }*/
         canvasCtx.ellipse(WIDTH/2-i*10,Math.round(notes[i].y/HEIGHT*20)*HEIGHT/20,notes[i].s, notes[i].s, 0, 0, Math.PI *2);
         canvasCtx.fill();
-        canvasCtx.closePath();
       }
     }
 
+
       }
-      setTimeout(playLoop,50);
+      setTimeout(playLoop,40);
 
     }
 
