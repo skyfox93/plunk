@@ -4281,20 +4281,22 @@ function updatePlayer1(e){
   player1.curY = ((window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))/HEIGHT;
   if(player.curY>1){player.curY=1}
   if(player.curX>1){player.curX=1}
-  console.log(player.curY)    //player1.osc.frequency.value = freqs[Math.floor(10*(1-player1.curY))]
+  //console.log(player.curY)    //player1.osc.frequency.value = freqs[Math.floor(10*(1-player1.curY))]
     //player1.gainNode.gain.value = 0.5-Math.abs(player1.curX-0.5)/4;
+  if(Date.now()-lastEmit > 15){emit();}
 }
 
 function emit(){
-  if(Date.now()-lastEmit > 15){
+
     socket.emit('drawing', {
       id: myID,
       curX: player1.curX,
       curY: player1.curY,
-      pressed:player1.pressed
+      pressed:player1.pressed,
+      shouldPlay:player1.shouldPlay
     });
-    lastEmit=Date.now()
-  }
+    lastEmit=Date.now();
+    console.log('emited')
 }
 socket.on('drawing', updatePlayer);
 
@@ -4307,8 +4309,7 @@ function updatePlayer(msg){
   // we can optimize by using an object instead of an array
   let player=players.find(player => player.id == msg.id)
 if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
-  const shouldPlay=player.pressed && msg.pressed
-  Object.assign(player, {curX: msg.curX}, {curY: msg.curY}, {pressed: msg.pressed}, {shouldPlay})
+  Object.assign(player, {curX: msg.curX}, {curY: msg.curY}, {pressed: msg.pressed}, {shouldPlay:msg.shouldPlay})
 }
 
 let handleMouseDown=function(){ player1.playSound();emit();}
