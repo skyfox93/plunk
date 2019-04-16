@@ -4270,11 +4270,13 @@ class Player {
   // set options for the oscillator
 
 const myID=Math.random()
+let lastEmit=0
 var socket = io();
 player1=new Player(myID)
 let players=[player1]
-
+let updatePlayer1=
 function updatePlayer1(e){
+
   player1.curX =((window.Event) ? e.pageX : event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft))/WIDTH;
   player1.curY = ((window.Event) ? e.pageY : event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop))/HEIGHT;
   if(player.curY>1){player.curY=1}
@@ -4284,19 +4286,17 @@ function updatePlayer1(e){
 }
 
 function emit(){
-
-  socket.emit('drawing', {
-    id: myID,
-    curX: player1.curX,
-    curY: player1.curY,
-    pressed:player1.pressed
-  });
+  if(Date.now()-lastEmit > 15){
+    socket.emit('drawing', {
+      id: myID,
+      curX: player1.curX,
+      curY: player1.curY,
+      pressed:player1.pressed
+    });
+    lastEmit=Date.now()
+  }
 }
 socket.on('drawing', updatePlayer);
-
-
-
-
 
 function updatePlayer(msg){
 
@@ -4311,11 +4311,12 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   Object.assign(player, {curX: msg.curX}, {curY: msg.curY}, {pressed: msg.pressed}, {shouldPlay})
 }
 
-
+let handleMouseDown=function(){ player1.playSound();emit();}
+function handleMouseUp(){player1.stopPlaying();emit(); }
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
-  document.onmouseup=player1.stopPlaying;
-  document.onmousedown=player1.playSound;
+  document.onmouseup=handleMouseUp;
+  document.onmousedown=handleMouseDown;
 
 
 
@@ -4336,7 +4337,7 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   var canvasCtx = canvas.getContext('2d');
-    canvasCtx.lineWidth = 1;
+    canvasCtx.lineWidth = 2;
   let beat=0 // 0 ||1, whether we are between beats
 
   function playLoop(){
@@ -4420,7 +4421,7 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
       player.notes.pop()
       }
 
-      canvasCtx.lineWidth=2;
+      canvasCtx.lineWidth=5;
 
     for(let i=0;i<notes.length;i++){
       if(notes[i]){
@@ -4454,7 +4455,6 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
   function canvasDraw() {
 
     function drawNotes(){
-      emit();
       canvasCtx.clearRect(0,0,canvas.width,canvas.height)
       canvasCtx.globalAlpha = 1;
       for (player of players){
@@ -4499,5 +4499,4 @@ if(!player){player=new Player(parseFloat(msg.id)); players.push(player)}
 
 //canvasDraw()
 playLoop()
-setInterval(emit,25)
  }
