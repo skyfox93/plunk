@@ -2,8 +2,11 @@ var appContents = document.querySelector('.app-contents');
 var startMessage = document.querySelector('.start-message');
 appContents.style.display = 'none';
 
+document.addEventListener('click', init);
+var audioContext = new AudioContext();
+var osc = audioContext.createOscillator();
 
-
+// Source: https://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/Organ_2
 var tables = {
 'real': [
 0.000000,
@@ -4121,7 +4124,7 @@ var hornTable = audioContext.createPeriodicWave(real, imag);
 
 
 
-document.addEventListener('click', init);
+
 let notes=[]
 let freqs=[]
 let notes2=[]
@@ -4143,19 +4146,27 @@ let notes2=[]
   notes2[13] = 349.228231433003884;
   notes2[14] = 391.995435981749294;
 
-
-
-  freqs[0] = 220.000000000000000;
-   freqs[1] = 261.625565300598634;
-   freqs[2] = 293.664767917407560;
-   freqs[3] = 329.627556912869929;
-   freqs[4] = 391.995435981749294;
-   freqs[5] = 440.000000000000000;
-   freqs[6] = 523.251130601197269;
-   freqs[7] = 587.329535834815120;
-   freqs[8] = 659.255113825739859;
-   freqs[9] = 783.990871963498588;
-
+   freqs[0]= 55.000000000000000;
+   freqs[1]= 65.406391325149658;
+   freqs[2]= 73.416191979351890;
+   freqs[3]= 82.406889228217482;
+   freqs[4]= 97.998858995437323;
+   freqs[5]= 110.000000000000000;
+   freqs[6]= 130.812782650299317;
+   freqs[7]= 146.832383958703780;
+   freqs[8]= 164.813778456434964;
+   freqs[9]= 195.997717990874647;
+   freqs[10] = 220.000000000000000;
+   freqs[11] = 261.625565300598634;
+   freqs[12] = 293.664767917407560;
+   freqs[13] = 329.627556912869929;
+   freqs[14]= 391.995435981749294;
+   freqs[15] = 440.000000000000000;
+   freqs[16] = 523.251130601197269;
+   freqs[17] = 587.329535834815120;
+   freqs[18] = 659.255113825739859;
+   freqs[19] = 783.990871963498588;
+   freqs[20] = 880;
 
 // freqs[0] = 130.812782650299317;
 //  freqs[1] = 146.832383958703780;
@@ -4186,11 +4197,14 @@ function init(){
 
 class Player {
 
+
   constructor(id){
     this.id=id ||Math.random()
     this.osc={}
     this.notes=[]
     this.pressed=false
+    this.playing=false
+    this.pPlaying=false // previously Playing
     this.gainNode={}
     this.playSound=this.playSound.bind(this)
     this.stopPlaying=this.stopPlaying.bind(this)
@@ -4198,40 +4212,22 @@ class Player {
   }
 
   playSound(e){
-    console.log('play')
-    if(this.playing){return}
-    this.playing=true
-    this.pressed=true
-    // if(this.gainNode.gain){this.gainNode.gain.value=0}
-    //
-    // if(this.osc.stop){this.osc.stop(audioCtx.currentTime)}
-    this.gainNode = audioCtx.createGain();
-    let oscillator = audioCtx.createOscillator();
-    oscillator.connect(this.gainNode);
-    this.gainNode.connect(audioCtx.destination);
-    oscillator.type = 'triangle';
-    console.log(Math.floor(10*(1-this.curY)))
-    oscillator.frequency.value = freqs[Math.floor(10*(1-this.curY))]
-    this.gainNode.gain.value =1-Math.abs(this.curX-0.5)/0.5;
-    if(this.pressed){this.notes.unshift({x:this.curX*WIDTH,y:this.curY*HEIGHT,s:Math.random()})}
-    oscillator.detune.value = 100; // value in cents
-    oscillator.start(audioCtx.currentTime)
-    this.osc=oscillator
+    this.pressed=true;
+    this.shouldPlay=true;
   }
   updateSound(e) {
 
-    if(!this.playing){return}
 
-      this.osc.frequency.value = freqs[Math.floor(10*(1-this.curY))]
-      this.gainNode.gain.value = 1-Math.abs(this.curX-.5)/0.5;
   }
 
   stopPlaying(e){
-    this.playing=false;
     this.pressed=false
-    this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
-    this.osc.stop(audioCtx.currentTime+0.2)
+
+    /*this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+    this.osc.stop(audioCtx.currentTime+1)
     this.gainNode={}
+    //this.osc.triggerRelease("+8n")
+*/
   }
 
 }
@@ -4455,7 +4451,6 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
 
     }
 
-  var canvasCtx = canvas.getContext('2d');
 
   function canvasDraw() {
 
@@ -4467,20 +4462,20 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
         const curX=player.curX
         const curY=player.curY
       canvasCtx.beginPath();
-      canvasCtx.fillStyle = 'rgb(' + Math.floor((1-curY)*255) + ',' + 100 + ',' + Math.floor(curY*255)+')';
+      canvasCtx.fillStyle = 'rgb(' + WIDTH/2 + ',' + 100 + ',' + Math.floor(curY*255)+')';
       canvasCtx.arc(curX*WIDTH,curY*HEIGHT,20,0,360,false);
       canvasCtx.fill();
       canvasCtx.closePath();
-      while(notes.length>25){
+      while(notes.length>50){
       player.notes.pop()
       }
-      if(player.pressed){notes.unshift({x:curX*WIDTH-10,y:curY*HEIGHT,s:Math.random()})}
-      else{notes.unshift(null)}
+
 
 
     for(let i=0;i<notes.length;i++){
       if(notes[i]){
-        canvasCtx.globalAlpha = 1-i/25;
+        canvasCtx.globalAlpha = 1-i/50;
+
         canvasCtx.beginPath();
         canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
         canvasCtx.arc(WIDTH/2-i*20,notes[i].y,notes[i].s,(Math.PI/180)*0,(Math.PI/180)*360,false);
@@ -4489,7 +4484,7 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
       }
     }
   }
-    setTimeout(drawNotes,40)
+    setTimeout(drawNotes,50)
     }
     drawNotes()
 
