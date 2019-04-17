@@ -4181,7 +4181,7 @@ let notes2=[]
 function init(){
 
   document.removeEventListener('click', init);
-
+  document.querySelector('.start-message').remove()
   appContents.style.display = 'block';
   // create web audio api context
   var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -4338,7 +4338,7 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   var canvasCtx = canvas.getContext('2d');
-    canvasCtx.lineWidth = 2;
+  canvasCtx.lineWidth = screen.height/500;
   let beat=0 // 0 ||1, whether we are between beats
 
   function playLoop(){
@@ -4422,7 +4422,6 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
       player.notes.pop()
       }
 
-      canvasCtx.lineWidth=5;
 
     for(let i=0;i<notes.length;i++){
       if(notes[i]){
