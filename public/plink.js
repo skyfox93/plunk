@@ -170,27 +170,10 @@ class Player {
   // set options for the oscillator
 
 const myID=Math.random()
-let pressed=false
-let shouldPlay=false
 let lastEmit=0
 var socket = io();
 player1=new Player(myID)
 let players=[player1]
-
-function playSound(e){
-  pressed=true;
-  shouldPlay=true;
-}
-
-function stopPlaying(e){
-    pressed=false
-
-    /*this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-    this.osc.stop(audioCtx.currentTime+1)
-    this.gainNode={}
-    //this.osc.triggerRelease("+8n")
-*/
-  }
 let updatePlayer1=
 function updatePlayer1(e){
 
@@ -217,8 +200,8 @@ function emit(){
       id: myID,
       curX: player1.curX,
       curY: player1.curY,
-      pressed:pressed,
-      shouldPlay:shouldPlay
+      pressed:player1.pressed,
+      shouldPlay:player1.shouldPlay
     });
     lastEmit=Date.now();
     console.log('emited')
@@ -227,7 +210,7 @@ socket.on('drawing', updatePlayer);
 
 function updatePlayer(msg){
 
-  //if(msg.id == myID){return}
+  if(msg.id == myID){return}
 
   let player=players.find(player => player.id == msg.id)
   if(!player){
@@ -244,8 +227,8 @@ function updatePlayer(msg){
   )
 }
 
-let handleMouseDown=function(){ playSound();emit();}
-function handleMouseUp(){stopPlaying();emit(); }
+let handleMouseDown=function(){ player1.playSound();emit();}
+function handleMouseUp(){player1.stopPlaying();emit(); }
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
   document.onmouseup=handleMouseUp;
