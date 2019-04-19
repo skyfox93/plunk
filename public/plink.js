@@ -3,6 +3,8 @@ var startMessage = document.querySelector('.start-message');
 appContents.style.display = 'none';
 
 document.addEventListener('click', init);
+document.addEventListener('touchstart', init);
+
 var audioContext = new AudioContext();
 var osc = audioContext.createOscillator();
 
@@ -81,6 +83,7 @@ let notes2=[]
 function init(){
 
   document.removeEventListener('click', init);
+  document.removeEventListener('touchstart',init)
   document.querySelector('.start-message').remove()
   appContents.style.display = 'block';
   // create web audio api context
@@ -212,26 +215,27 @@ function updatePlayer(msg){
 }
 let lastEmit=0
 function updatePlayer1(e){
-// this is a complex polyfill for e.pageX and e.PageY
-  player1.curX =((window.Event) ?
-    e.pageX
-  : event.clientX +(
-    document.documentElement.scrollLeft ?
-      document.documentElement.scrollLeft
-    : document.body.scrollLeft)
-  )/WIDTH
+  player1.curX =e.pageX/WIDTH
 
-  player1.curY = ((window.Event) ?
-    e.pageY
-  : event.clientY +
-    (document.documentElement.scrollTop ?
-      document.documentElement.scrollTop
-    : document.body.scrollTop)
-  )/HEIGHT;
+  player1.curY =
+    e.pageY/HEIGHT;
 
   // emit if its been more than 15 ms since the last emit
   if(Date.now()-lastEmit > 15){emit();}
 }
+
+
+function updateP1Touch(e){
+// this is a complex polyfill for e.pageX and e.PageY
+  player1.curX =e.targetTouches[0].pageX/WIDTH
+
+  player1.curY = e.targetTouches[0].pageX/HEIGHT;
+
+  // emit if its been more than 15 ms since the last emit
+  if(Date.now()-lastEmit > 15){emit();}
+}
+
+
 // set player1.pressed, player1.shouldPlay to true on mousedown, and emit
 let handleMouseDown=function(){ player1.playSound();emit();}
 
@@ -240,6 +244,9 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
 
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
+  canvas.addEventListener('touchmove',updateP1Touch)
+  document.addEventListener('touchstart',handleMouseUp)
+  document.addEventListener('touchend',handleMouseDown)
   document.addEventListener('mouseup',handleMouseUp);
   document.addEventListener('mousedown',handleMouseDown);
 
