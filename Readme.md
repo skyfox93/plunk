@@ -1,17 +1,13 @@
 
-# Socket.IO Collaborative Whiteboard
+# Plunk! Collaborative Music Game
 
-A simple collaborative whiteboard for socket.io
+A simple collaborative music game made with socket.io
 
-## How to use
+## How to play
+Use the mouse or a touch screen. Press to play.
+
+## How to run
 
 ```
 $ npm i && npm start
 ```
-
-And point your browser to `http://localhost:3000`. Optionally, specify
-a port by supplying the `PORT` env variable.
-
-## Features
-
-- draw on the whiteboard and all other users will see you drawings live
