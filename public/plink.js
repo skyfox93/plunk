@@ -170,30 +170,13 @@ class Player {
   // set options for the oscillator
 
 const myID=Math.random()
-let lastEmit=0
+// initiate the websocket client
 var socket = io();
 player1=new Player(myID)
+// intiate the players array
 let players=[player1]
-let updatePlayer1=
-function updatePlayer1(e){
 
-  player1.curX =((window.Event) ?
-    e.pageX
-  : event.clientX +
-  (document.documentElement.scrollLeft ?
-    document.documentElement.scrollLeft : document.body.scrollLeft))/WIDTH;
-  player1.curY = ((window.Event) ?
-    e.pageY
-  : event.clientY +
-    (document.documentElement.scrollTop ?
-      document.documentElement.scrollTop : document.body.scrollTop))/HEIGHT;
-  if(player.curY>1){player.curY=1}
-  if(player.curX>1){player.curX=1}
-  //console.log(player.curY)    //player1.osc.frequency.value = freqs[Math.floor(10*(1-player1.curY))]
-    //player1.gainNode.gain.value = 0.5-Math.abs(player1.curX-0.5)/4;
-  if(Date.now()-lastEmit > 15){emit();}
-}
-
+// send updated values when emit is called
 function emit(){
 
     socket.emit('drawing', {
@@ -208,6 +191,7 @@ function emit(){
 }
 socket.on('drawing', updatePlayer);
 
+// when updated values are received, update the players array
 function updatePlayer(msg){
 
   if(msg.id == myID){return}
@@ -226,13 +210,38 @@ function updatePlayer(msg){
     }
   )
 }
+let lastEmit=0
+function updatePlayer1(e){
+// this is a complex polyfill for e.pageX and e.PageY
+  player1.curX =((window.Event) ?
+    e.pageX
+  : event.clientX +(
+    document.documentElement.scrollLeft ?
+      document.documentElement.scrollLeft
+    : document.body.scrollLeft)
+  )/WIDTH
 
+  player1.curY = ((window.Event) ?
+    e.pageY
+  : event.clientY +
+    (document.documentElement.scrollTop ?
+      document.documentElement.scrollTop
+    : document.body.scrollTop)
+  )/HEIGHT;
+
+  // emit if its been more than 15 ms since the last emit
+  if(Date.now()-lastEmit > 15){emit();}
+}
+// set player1.pressed, player1.shouldPlay to true on mousedown, and emit
 let handleMouseDown=function(){ player1.playSound();emit();}
+
+// set player1.pressed to false on mouseUp, and emit
 function handleMouseUp(){player1.stopPlaying();emit(); }
+
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
-  document.onmouseup=handleMouseUp;
-  document.onmousedown=handleMouseDown;
+  document.addEventListener('mouseup',handleMouseUp);
+  document.addEventListener('mousedown',handleMouseDown);
 
 
 
