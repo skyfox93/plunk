@@ -4,8 +4,10 @@ appContents.style.display = 'none';
 
 document.addEventListener('click', init);
 document.addEventListener('touchstart', init);
-
-var audioContext = new AudioContext();
+let AudioContext= window.AudioContext || window.webkitAudioContext
+if(AudioContext){
+var audioContext = new AudioContext;}
+else{ alert('Sorry, your browswer is not supported')}
 var osc = audioContext.createOscillator();
 
 // Source: https://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/Organ_2
@@ -82,6 +84,7 @@ let notes2=[]
 //  freqs[9] = 440.000000000000000;
 function init(){
 
+
   document.removeEventListener('click', init);
   document.removeEventListener('touchstart',init)
   document.querySelector('.start-message').remove()
@@ -89,6 +92,13 @@ function init(){
   // create web audio api context
   var AudioContext = window.AudioContext || window.webkitAudioContext;
   var audioCtx = new AudioContext();
+  if (audioCtx.state === 'suspended' && 'ontouchstart' in window)
+  {
+          audioCtx.resume();
+      };
+
+  if(!audioCtx.createOscillator){alert('your device is not supported.')}
+
   // create Oscillator and gain node
   let currentOsc={}
   var WIDTH = window.innerWidth;
@@ -176,6 +186,7 @@ const myID=Math.random()
 // initiate the websocket client
 var socket = io();
 player1=new Player(myID)
+let isSupported=true;
 // intiate the players array
 let players=[player1]
 
@@ -226,10 +237,11 @@ function updatePlayer1(e){
 
 
 function updateP1Touch(e){
+  e.preventDefault();
 // this is a complex polyfill for e.pageX and e.PageY
   player1.curX =e.targetTouches[0].pageX/WIDTH
 
-  player1.curY = e.targetTouches[0].pageX/HEIGHT;
+  player1.curY = e.targetTouches[0].pageY/HEIGHT;
 
   // emit if its been more than 15 ms since the last emit
   if(Date.now()-lastEmit > 15){emit();}
@@ -238,15 +250,17 @@ function updateP1Touch(e){
 
 // set player1.pressed, player1.shouldPlay to true on mousedown, and emit
 let handleMouseDown=function(){ player1.playSound();emit();}
+let handleMouseDownT=function(e){ player1.playSound();updateP1Touch(e);emit();}
 
 // set player1.pressed to false on mouseUp, and emit
 function handleMouseUp(){player1.stopPlaying();emit(); }
+function handleMouseUpT(e){player1.stopPlaying();emit(); }
 
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
   canvas.addEventListener('touchmove',updateP1Touch)
-  document.addEventListener('touchstart',handleMouseUp)
-  document.addEventListener('touchend',handleMouseDown)
+  canvas.addEventListener('touchstart',handleMouseDownT)
+  canvas.addEventListener('touchend',handleMouseUpT)
   document.addEventListener('mouseup',handleMouseUp);
   document.addEventListener('mousedown',handleMouseDown);
 
@@ -313,11 +327,11 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
         player.gainNode.connect(audioCtx.destination);
          // gain depends on mouse position
         player.gainNode.gain.value =0.5-Math.abs(player.curX-0.5)/4;
-
         osc.start(audioCtx.currentTime)
         player.osc=osc
         player.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         player.osc.stop(audioCtx.currentTime+0.2)
+
         // store note for animating the canvas
         player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,solid:true,s: 25
         })
@@ -379,48 +393,10 @@ function handleMouseUp(){player1.stopPlaying();emit(); }
 
 
       }
-      setTimeout(playLoop,40);
+      if (isSupported){setTimeout(playLoop,40);}
+      else{alert('Sorry, this device ( probably an iphone or ipad) is not supported')}
 
     }
-
-
-  function canvasDraw() {
-
-    function drawNotes(){
-      canvasCtx.clearRect(0,0,canvas.width,canvas.height)
-      canvasCtx.globalAlpha = 1;
-      for (player of players){
-        let notes=player.notes
-        const curX=player.curX
-        const curY=player.curY
-      canvasCtx.beginPath();
-      canvasCtx.fillStyle = 'rgb(' + WIDTH/2 + ',' + 100 + ',' + Math.floor(curY*255)+')';
-      canvasCtx.arc(curX*WIDTH,curY*HEIGHT,20,0,360,false);
-      canvasCtx.fill();
-      canvasCtx.closePath();
-      while(notes.length>50){
-      player.notes.pop()
-      }
-
-
-
-    for(let i=0;i<notes.length;i++){
-      if(notes[i]){
-        canvasCtx.globalAlpha = 1-i/50;
-
-        canvasCtx.beginPath();
-        canvasCtx.fillStyle = 'rgb(' + 100+ + ',' + 100 + ',' + Math.floor(notes[i].y/HEIGHT*255)+')';
-        canvasCtx.arc(WIDTH/2-i*20,notes[i].y,notes[i].s,(Math.PI/180)*0,(Math.PI/180)*360,false);
-        canvasCtx.fill();
-        canvasCtx.closePath();
-      }
-    }
-  }
-    setTimeout(drawNotes,50)
-    }
-    drawNotes()
-
-  }
 
   // clear screen
 
