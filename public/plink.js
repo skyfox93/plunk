@@ -84,6 +84,7 @@ let notes2=[]
 //  freqs[9] = 440.000000000000000;
 function init(){
 
+
   document.removeEventListener('click', init);
   document.removeEventListener('touchstart',init)
   document.querySelector('.start-message').remove()
@@ -91,6 +92,13 @@ function init(){
   // create web audio api context
   var AudioContext = window.AudioContext || window.webkitAudioContext;
   var audioCtx = new AudioContext();
+  if (audioCtx.state === 'suspended' && 'ontouchstart' in window)
+  {
+          audioCtx.resume();
+      };
+
+  if(!audioCtx.createOscillator){alert('your device is not supported.')}
+
   // create Oscillator and gain node
   let currentOsc={}
   var WIDTH = window.innerWidth;
@@ -178,6 +186,7 @@ const myID=Math.random()
 // initiate the websocket client
 var socket = io();
 player1=new Player(myID)
+let isSupported=true;
 // intiate the players array
 let players=[player1]
 
@@ -245,13 +254,13 @@ let handleMouseDownT=function(e){ player1.playSound();updateP1Touch(e);emit();}
 
 // set player1.pressed to false on mouseUp, and emit
 function handleMouseUp(){player1.stopPlaying();emit(); }
-function handleMouseUpT(e){player1.stopPlaying();updateP1Touch(e);emit(); }
+function handleMouseUpT(e){player1.stopPlaying();emit(); }
 
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
-  document.body.addEventListener('touchmove',updateP1Touch)
-  document.body.addEventListener('touchstart',handleMouseDownT)
-  document.body.addEventListener('touchend',handleMouseUpT)
+  canvas.addEventListener('touchmove',updateP1Touch)
+  canvas.addEventListener('touchstart',handleMouseDownT)
+  canvas.addEventListener('touchend',handleMouseUpT)
   document.addEventListener('mouseup',handleMouseUp);
   document.addEventListener('mousedown',handleMouseDown);
 
@@ -318,11 +327,11 @@ function handleMouseUpT(e){player1.stopPlaying();updateP1Touch(e);emit(); }
         player.gainNode.connect(audioCtx.destination);
          // gain depends on mouse position
         player.gainNode.gain.value =0.5-Math.abs(player.curX-0.5)/4;
-
         osc.start(audioCtx.currentTime)
         player.osc=osc
         player.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         player.osc.stop(audioCtx.currentTime+0.2)
+
         // store note for animating the canvas
         player.notes.unshift({x:player.curX*WIDTH,y:player.curY*HEIGHT,solid:true,s: 25
         })
@@ -384,7 +393,8 @@ function handleMouseUpT(e){player1.stopPlaying();updateP1Touch(e);emit(); }
 
 
       }
-      setTimeout(playLoop,40);
+      if (isSupported){setTimeout(playLoop,40);}
+      else{alert('Sorry, this device ( probably an iphone or ipad) is not supported')}
 
     }
 
