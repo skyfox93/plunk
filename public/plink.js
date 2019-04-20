@@ -250,8 +250,8 @@ function handleMouseUpT(e){player1.stopPlaying();updateP1Touch(e);emit(); }
   var canvas = document.querySelector('.canvas');
   canvas.onmousemove = updatePlayer1;
   document.body.addEventListener('touchmove',updateP1Touch)
-  document.body.addEventListener('touchstart',handleMouseUpT)
-  document.body.addEventListener('touchend',handleMouseDownT)
+  document.body.addEventListener('touchstart',handleMouseDownT)
+  document.body.addEventListener('touchend',handleMouseUpT)
   document.addEventListener('mouseup',handleMouseUp);
   document.addEventListener('mousedown',handleMouseDown);
 
