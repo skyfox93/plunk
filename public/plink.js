@@ -249,7 +249,7 @@ function updateP1Touch(e){
 
 
 // set player1.pressed, player1.shouldPlay to true on mousedown, and emit
-let handleMouseDown=function(){ player1.playSound();emit();}
+let handleMouseDown=function(){ player1.playSound(e);updatePlayer1(e);}
 let handleMouseDownT=function(e){ player1.playSound();updateP1Touch(e);emit();}
 
 // set player1.pressed to false on mouseUp, and emit
@@ -261,8 +261,8 @@ function handleMouseUpT(e){player1.stopPlaying();emit(); }
   canvas.addEventListener('touchmove',updateP1Touch)
   canvas.addEventListener('touchstart',handleMouseDownT)
   canvas.addEventListener('touchend',handleMouseUpT)
-  document.addEventListener('mouseup',handleMouseUp);
-  document.addEventListener('mousedown',handleMouseDown);
+  canvas.addEventListener('mouseup',handleMouseUp);
+  canvas.addEventListener('mousedown',handleMouseDown);
 
 
 
