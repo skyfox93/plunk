@@ -249,7 +249,7 @@ function updateP1Touch(e){
 
 
 // set player1.pressed, player1.shouldPlay to true on mousedown, and emit
-let handleMouseDown=function(){ player1.playSound(e);updatePlayer1(e);}
+let handleMouseDown=function(e){ player1.playSound(e);updatePlayer1(e);}
 let handleMouseDownT=function(e){ player1.playSound();updateP1Touch(e);emit();}
 
 // set player1.pressed to false on mouseUp, and emit
@@ -288,7 +288,7 @@ function handleMouseUpT(e){player1.stopPlaying();emit(); }
 
   function playLoop(){
     // sounds play only on beat. Notes can change on 1/2 beat
-    beat= beat<3 ? beat+1 : 0
+    beat= beat<4 ? beat+1 : 0
     onBeat=!beat
     canvasCtx.globalAlpha=1;
     canvasCtx.clearRect(0,0,WIDTH,HEIGHT)
