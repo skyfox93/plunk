@@ -185,7 +185,7 @@ class Player {
 const myID=Math.random()
 // initiate the websocket client
 var socket = io();
-const player1=new Player(myID)
+player1=new Player(myID)
 let isSupported=true;
 // intiate the players array
 let players=[player1]
@@ -249,7 +249,7 @@ function updateP1Touch(e){
 
 
 // set player1.pressed, player1.shouldPlay to true on mousedown, and emit
-let handleMouseDown=function(){ player1.playSound();emit();}
+let handleMouseDown=function(){ player1.playSound(e);updatePlayer1(e);}
 let handleMouseDownT=function(e){ player1.playSound();updateP1Touch(e);emit();}
 
 // set player1.pressed to false on mouseUp, and emit
@@ -261,8 +261,8 @@ function handleMouseUpT(e){player1.stopPlaying();emit(); }
   canvas.addEventListener('touchmove',updateP1Touch)
   canvas.addEventListener('touchstart',handleMouseDownT)
   canvas.addEventListener('touchend',handleMouseUpT)
-  document.addEventListener('mouseup',handleMouseUp);
-  document.addEventListener('mousedown',handleMouseDown);
+  canvas.addEventListener('mouseup',handleMouseUp);
+  canvas.addEventListener('mousedown',handleMouseDown);
 
 
 
@@ -284,10 +284,10 @@ function handleMouseUpT(e){player1.stopPlaying();emit(); }
   canvas.height = HEIGHT;
   var canvasCtx = canvas.getContext('2d');
   canvasCtx.lineWidth = screen.height/500;
-  let beat=0 
-  let onBeat=true
+  let beat=0 // 0 ||1, whether we are between beats
 
   function playLoop(){
+    // sounds play only on beat. Notes can change on 1/2 beat
     beat= beat<3 ? beat+1 : 0
     onBeat=!beat
     canvasCtx.globalAlpha=1;
@@ -307,7 +307,7 @@ function handleMouseUpT(e){player1.stopPlaying();emit(); }
     canvasCtx.globalAlpha = 1;
 
 
-    for(let player of players){
+    for(player of players){
     /*if we are in between beats, and player started playing (mousedown),
      then play a note until the next beat
      if the user hit mouseDown and hasn't yet played a sound (shouldPlay)
