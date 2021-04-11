@@ -185,6 +185,7 @@ class Player {
 const myID=Math.random()
 // initiate the websocket client
 var socket = io();
+var sent_time = 0
 player1=new Player(myID)
 let isSupported=true;
 // intiate the players array
@@ -192,7 +193,7 @@ let players=[player1]
 
 // send updated values when emit is called
 function emit(){
-
+    sent_time = performance.now
     socket.emit('drawing', {
       id: myID,
       curX: player1.curX,
@@ -208,7 +209,11 @@ socket.on('drawing', updatePlayer);
 // when updated values are received, update the players array
 function updatePlayer(msg){
 
-  if(msg.id == myID){return}
+  if(msg.id == myID){
+    received_time = performance.now()
+    console.log('recieved -lag' + String(sent_time - received_time))
+    return
+  }
 
   let player=players.find(player => player.id == msg.id)
   if(!player){
