@@ -1,5 +1,5 @@
 // Source: https://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/Organ_2
-var tables = {
+const organWaveTable = {
 'real': [
 0.000000,
 -0.000000,
@@ -4099,5 +4099,7 @@ var tables = {
 -0.000000,
 0.000000,
 -0.000000,
-],
+]
 }
+export default organWaveTable
+
