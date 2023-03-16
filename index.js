@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 app.use(express.static(__dirname + '/public'));
 
 function onConnection(socket){
-  socket.on('updated', (data) => socket.broadcast.emit('updated', data));
+  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 }
 
 io.on('connection', onConnection);
