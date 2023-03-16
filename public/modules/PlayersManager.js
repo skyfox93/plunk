@@ -39,9 +39,9 @@ export default class PlayersManager{
           player.playSound(instrument)
         }
 
-    const normalizedX = player.curX * canvasWidth
-    const normalizedY = player.curY * canvasWidth
-        player.addVisualNote(normalizedX, normalizedY, player.pressed || player.shouldPlay)
+    const deNormalizedX = player.curX * canvasWidth
+    const deNormalizedY = player.curY * canvasHeight
+        player.addVisualNote(deNormalizedX, deNormalizedY, player.pressed || player.shouldPlay)
       })
     }
   
