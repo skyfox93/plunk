@@ -1,8 +1,11 @@
+import Player from "./Player.js"
+
 export default class PlayersManager{
 
-    constructor(){
-      this.user = new Player()
-      this.players = [player1]
+    constructor(soundManager){
+      this.soundManager = soundManager
+      this.user = new Player(Math.random(), soundManager)
+      this.players = [this.user]
       this.lastSent = null // when we last sent data to the server
       this.socket = io();
       this.socket.on('drawing', this.recievePlayerUpdate);
@@ -19,28 +22,45 @@ export default class PlayersManager{
         user.shouldPlay = isPressed
       }
   
-      if (Performance.now() - this.lastSent > 50) {
-        this.sendToServer()
+      if (performance.now() - this.lastSent > 50) {
+        this.sendPlayerUpdate()
       }
+    }
+
+    updateNotes(frame, canvasWidth, canvasHeight){
+      this.players.forEach((player) => {
+        const willPlay = frame == 0 && (player.shouldPlay || player.pressed)
+        /* animation rate is 4 times the rate of musical notes
+            so notes only play on frame 0 out of 4
+            this is better than separate loops because separate loops may not start at exactly the same time
+          */
+        if (willPlay) {
+          const instrument = player == this.user ? "chorus" : "piano"
+          player.playSound(instrument)
+        }
+
+    const normalizedX = player.curX * canvasWidth
+    const normalizedY = player.curY * canvasWidth
+        player.addVisualNote(normalizedX, normalizedY, player.pressed || player.shouldPlay)
+      })
     }
   
     sendPlayerUpdate = () => {
-      socket.emit('drawing', {
-        id: myID,
+      this.socket.emit('drawing', {
+        id: this.user.id,
         curX: this.user.curX,
         curY: this.user.curY,
         pressed: this.user.pressed,
         shouldPlay: this.user.shouldPlay
       });
-      this.lastSent = Performance.now();
-      console.log('emited')
+      this.lastSent = performance.now();
     }
   
     recievePlayerUpdate = (msg) => {
-      let player = players.find(player => player.id == msg.id)
+      let player = this.players.find(player => player.id == msg.id)
       if (!player) {
-        player = new Player(parseFloat(msg.id));
-        players.push(player)
+        player = new Player(parseFloat(msg.id), this.soundManager);
+        this.players.push(player)
       }
       Object.assign(player,
         {

@@ -1,4 +1,4 @@
-class MouseEventsHandler {
+export default class MouseEventsHandler {
 
     constructor(playerManager) {
       this.playerManager = playerManager
@@ -7,12 +7,13 @@ class MouseEventsHandler {
   
     mouseCoordsToGrid = (coords) => {
       const [pageX, pageY] = coords
-      return [pageX/ this.canvas.width, this.pageY / canvas.height]
+      return [pageX/this.canvas.width, pageY / this.canvas.height]
   
     }
     coordsFromTouch = (e) => (
       [e.targetTouches[0].pageX, e.targetTouches[0].pageY]
     )
+    
   
     coordsFromMouse = (e) => (
       [e.pageX, e.pageY]
@@ -37,18 +38,18 @@ class MouseEventsHandler {
   
     handleMouseMove = (e) => {
       e.preventDefault()
-      const [x,y] = this.pixelsToGrid(this.coordsFromMouse(e))
+      const [x,y] = this.mouseCoordsToGrid(this.coordsFromMouse(e))
       this.playerManager.updateUser(x,y, null)
     }
   
     handleMouseDown = (e) => {
       e.preventDefault()
-      const [x,y] = this.pixelsToGrid(this.coordsFromMouse(e))
+      const [x,y] = this.mouseCoordsToGrid(this.coordsFromMouse(e))
       this.playerManager.updateUser(x,y, true)
     }
     handleMouseUp = (e) => {
       e.preventDefault()
-      const [x,y] = this.pixelsToGrid(this.coordsFromMouse(e))
+      const [x,y] = this.mouseCoordsToGrid(this.coordsFromMouse(e))
       this.playerManager.updateUser(x,y, false)
     }
     
