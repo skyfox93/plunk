@@ -1,11 +1,13 @@
+import WaveTables from "../waveTables.js"
 import Player from "./Player.js"
 
 export default class PlayersManager {
 
   constructor(soundManager) {
     this.soundManager = soundManager
-    this.user = new Player(Math.random(), soundManager)
+    this.user = new Player(Math.random(), soundManager, 'organ')
     this.players = [this.user]
+    this.available_instruments = Object.keys(WaveTables)
     this.lastSent = null // when we last sent data to the server
     this.socket = io();
     this.socket.on('drawing', this.recievePlayerUpdate);
@@ -35,7 +37,7 @@ export default class PlayersManager {
           this is better than separate loops because separate loops may not start at exactly the same time
         */
       if (willPlay) {
-        const instrument = player == this.user ? "chorus" : "piano"
+        const instrument  = player.instrument
         this.soundManager.playSound(instrument, Math.round(20 * (1 - player.curY)))
       }
 
@@ -70,7 +72,7 @@ export default class PlayersManager {
   recievePlayerUpdate = (msg) => {
     let player = this.players.find(player => player.id == msg.id)
     if (!player) {
-      player = new Player(parseFloat(msg.id), this.soundManager);
+      player = new Player(parseFloat(msg.id), this.soundManager, this.available_instruments.pop() || 'piano');
       this.players.push(player)
     }
     Object.assign(player,

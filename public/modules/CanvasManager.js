@@ -21,7 +21,7 @@ export default class CanvasManager {
 
       this.playerManager.updateNotes(this.frame, this.canvas.width, this.canvas.height)
       this.drawVisuals()
-      if (this.frame >= 3) {
+      if (this.frame >= 6) {
         this.frame = 0
       } else {
         this.frame += 1

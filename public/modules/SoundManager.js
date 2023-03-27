@@ -1,28 +1,28 @@
 import WaveTables from "../waveTables.js"
 
 
-let freqs = []
-freqs[0] = 55.000000000000000;
-freqs[1] = 65.406391325149658;
-freqs[2] = 73.416191979351890;
-freqs[3] = 82.406889228217482;
-freqs[4] = 97.998858995437323;
-freqs[5] = 110.000000000000000;
-freqs[6] = 130.812782650299317;
-freqs[7] = 146.832383958703780;
-freqs[8] = 164.813778456434964;
-freqs[9] = 195.997717990874647;
-freqs[10] = 220.000000000000000;
-freqs[11] = 261.625565300598634;
-freqs[12] = 293.664767917407560;
-freqs[13] = 329.627556912869929;
-freqs[14] = 391.995435981749294;
-freqs[15] = 440.000000000000000;
-freqs[16] = 523.251130601197269;
-freqs[17] = 587.329535834815120;
-freqs[18] = 659.255113825739859;
-freqs[19] = 783.990871963498588;
-freqs[20] = 880;
+let freqs = [
+ 55.000000000000000,
+ 65.406391325149658,
+ 73.416191979351890,
+ 82.406889228217482,
+ 97.998858995437323,
+ 110.000000000000000,
+ 130.812782650299317,
+ 146.832383958703780,
+ 164.813778456434964,
+ 195.997717990874647,
+ 220.000000000000000,
+261.625565300598634,
+293.664767917407560,
+329.627556912869929,
+391.995435981749294,
+440.000000000000000,
+523.251130601197269,
+587.329535834815120,
+659.255113825739859,
+783.990871963498588,
+880]
 export class AudioContextManger {
 
     init() {
@@ -49,7 +49,6 @@ export class SoundManager {
     createWaveForms = () => {
       let waveforms = {}
       for (let instrument in WaveTables) {
-        console.log(instrument)
         waveforms[instrument] = this.initWave(WaveTables[instrument])
       }
       console.log(waveforms)
@@ -67,7 +66,7 @@ export class SoundManager {
       this.gainNode.gain.setTargetAtTime(volume, this.audioCtx.currentTime, 0.1)
     }
   
-    playSound = (instrument, freqIndex, volume = 0.5, duration = 0.1) => {
+    playSound = (instrument, freqIndex, volume = 0.5, duration = 0.2) => {
       const audioCtx = this.audioContext
       // gain node
       const gainNode = audioCtx.createGain();
@@ -82,8 +81,8 @@ export class SoundManager {
       osc.start(audioCtx.currentTime)
   
       // stop the sound
-      gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
-      osc.stop(audioCtx.currentTime + 0.2)
+      gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.3);
+      osc.stop(audioCtx.currentTime + 0.3)
       return osc
     }
   }
