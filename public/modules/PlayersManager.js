@@ -1,3 +1,4 @@
+import { freqsLength } from "../freqs.js"
 import WaveTables from "../waveTables.js"
 import Player from "./Player.js"
 
@@ -38,7 +39,8 @@ export default class PlayersManager {
         */
       if (willPlay) {
         const instrument  = player.instrument
-        this.soundManager.playSound(instrument, Math.round(20 * (1 - player.curY)))
+        
+        this.soundManager.playSound(instrument, Math.round(freqsLength * (1 - player.curY)))
       }
 
       const deNormalizedX = player.curX * canvasWidth
@@ -83,5 +85,9 @@ export default class PlayersManager {
         shouldPlay: msg.shouldPlay
       }
     )
+  }
+
+  switchInstrument(instrument){
+    this.user.instrument = instrument
   }
 }

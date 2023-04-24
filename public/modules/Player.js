@@ -5,5 +5,5 @@ export default class Player {
         this.pressed = false
         this.souldPlay = false
         this.instrument = instrument
-    } 
+    }
 }

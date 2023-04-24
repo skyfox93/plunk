@@ -43,3 +43,20 @@ h1 {
   top: 70px;
   left: 5px;
 }
+
+.instrumentSelector {
+  position: absolute;
+  right: 0;
+  top: 50px;
+}
+
+.instrumentSelector .instrument-choice {
+  font-size:  20px;
+  background-color: white;
+  padding: 10px;
+  margin: 10px
+}
+
+.instrumentSelector .highlighted {
+  box-shadow: 0px 0px 5px 5px grey;
+}

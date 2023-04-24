@@ -35,7 +35,9 @@ class App {
     let canvasManager = new CanvasManager(playerManager)
     mouseEventsHandler.assignEventListeners()
     canvasManager.mount()
+    
   }
+  
 
 }
 

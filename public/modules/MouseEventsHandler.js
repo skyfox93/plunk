@@ -4,6 +4,16 @@ export default class MouseEventsHandler {
       this.playerManager = playerManager
       this.canvas = document.querySelector('.canvas');
     }
+
+
+    handleInstrumentClick = (e) => {
+        if (e.target.className == 'instrument-choice') {
+          // clear any previously highlighted
+          document.querySelectorAll('.instrument-choice').forEach(item => item.className = 'instrument-choice')
+          e.target.className = 'instrument-choice highlighted'
+          this.playerManager.switchInstrument(e.target.dataset.instrument)
+        }
+    }
   
     mouseCoordsToGrid = (coords) => {
       const [pageX, pageY] = coords
@@ -60,5 +70,6 @@ export default class MouseEventsHandler {
       this.canvas.addEventListener('mousemove', this.handleMouseMove);
       this.canvas.addEventListener('mouseup', this.handleMouseUp);
       this.canvas.addEventListener('mousedown', this.handleMouseDown);
+      document.querySelector('.instrumentSelector').addEventListener('click', this.handleInstrumentClick)
     }
   }

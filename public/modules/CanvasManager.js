@@ -1,3 +1,4 @@
+import { freqsLength } from "../freqs.js";
 
 export default class CanvasManager {
 
@@ -42,9 +43,9 @@ export default class CanvasManager {
       canvasCtx.beginPath()
       canvasCtx.strokeStyle = 'rgb(200,200,200)'
   
-      for (let i = 0; i < 20; i++) {
-        canvasCtx.moveTo(0, this.canvas.height / 20 * i)
-        canvasCtx.lineTo(this.canvas.width, this.canvas.height / 20 * i)
+      for (let i = 0; i < freqsLength; i++) {
+        canvasCtx.moveTo(0, this.canvas.height / freqsLength * i)
+        canvasCtx.lineTo(this.canvas.width, this.canvas.height / freqsLength * i)
       }
       canvasCtx.stroke()
     }
