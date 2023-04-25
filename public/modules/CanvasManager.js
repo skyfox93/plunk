@@ -19,14 +19,17 @@ export default class CanvasManager {
     }
   
     playLoop = () => {
-
-      this.playerManager.updateNotes(this.frame, this.canvas.width, this.canvas.height)
-      this.drawVisuals()
+     
       if (this.frame >= 6) {
         this.frame = 0
+        this.playerManager.updateCpu()
       } else {
         this.frame += 1
       }
+      
+      this.playerManager.updateNotes(this.frame, this.canvas.width, this.canvas.height)
+      this.drawVisuals()
+
     }
   
     drawVisuals = () => {
@@ -60,11 +63,16 @@ export default class CanvasManager {
         canvasCtx.beginPath();
         for (let i = 0; i < notes.length; i++) {
           if (notes[i]) {
+           
             // set the opacity depending on how old the note is (i).
             canvasCtx.globalAlpha = (1 - i / 70) * 0.75;
             canvasCtx.beginPath();
             canvasCtx.ellipse(canvasWidth / 2 - i * 15, notes[i].y, notes[i].s, notes[i].s, 0, 0, Math.PI * 2);
-  
+            if (i == 0 ) {
+              canvasCtx.font = "14px serif";
+              canvasCtx.fillStyle = 'white'
+              canvasCtx.fillText(player.name, canvasWidth/2 + 30, notes[i].y);
+            }
             // draw an ellipse with the note
             if (notes[i].solid) {
               canvasCtx.strokeStyle = 'rgb(' + 255 + ',' + 100 + ',' + Math.floor(notes[i].y / canvasHeight * 255) + ')';

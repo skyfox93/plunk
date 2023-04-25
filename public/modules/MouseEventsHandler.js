@@ -14,6 +14,8 @@ export default class MouseEventsHandler {
           this.playerManager.switchInstrument(e.target.dataset.instrument)
         }
     }
+
+    
   
     mouseCoordsToGrid = (coords) => {
       const [pageX, pageY] = coords
@@ -38,7 +40,7 @@ export default class MouseEventsHandler {
     handleTouchStart = (e) => {
       e.preventDefault()
       const [x,y] = this.pixelsToGrid(this.coordsFromTouch(e))
-      this.playerManager.updateUser(x,y, true)
+      this.playerManager.updateUser(x,y, true, true)
     }
     handleTouchEnd = (e) => {
       e.preventDefault()
@@ -55,7 +57,7 @@ export default class MouseEventsHandler {
     handleMouseDown = (e) => {
       e.preventDefault()
       const [x,y] = this.mouseCoordsToGrid(this.coordsFromMouse(e))
-      this.playerManager.updateUser(x,y, true)
+      this.playerManager.updateUser(x,y, true, true)
     }
     handleMouseUp = (e) => {
       e.preventDefault()
@@ -70,6 +72,7 @@ export default class MouseEventsHandler {
       this.canvas.addEventListener('mousemove', this.handleMouseMove);
       this.canvas.addEventListener('mouseup', this.handleMouseUp);
       this.canvas.addEventListener('mousedown', this.handleMouseDown);
-      document.querySelector('.instrumentSelector').addEventListener('click', this.handleInstrumentClick)
-    }
+      document.querySelector('.settingsPanel').addEventListener('click', this.handleInstrumentClick)
+      document.querySelector('#enableCpu').addEventListener('click', () => {this.playerManager.toggleCpu()})
   }
+}

@@ -44,19 +44,25 @@ h1 {
   left: 5px;
 }
 
-.instrumentSelector {
+.settingsPanel {
   position: absolute;
   right: 0;
   top: 50px;
 }
 
-.instrumentSelector .instrument-choice {
+.settingsPanel .instrument-choice {
   font-size:  20px;
   background-color: white;
   padding: 10px;
   margin: 10px
 }
 
-.instrumentSelector .highlighted {
+.settingsPanel .highlighted {
   box-shadow: 0px 0px 5px 5px grey;
+}
+
+.cpu-settings {
+  color: white;
+  font-size: 16px;
+  margin: 10px;
 }

@@ -26,7 +26,7 @@ export class SoundManager {
   
     createWaveForms = () => {
       let waveforms = {}
-      const instrumentSwitcher = document.querySelector('.instrumentSelector')
+      const instrumentSwitcher = document.querySelector('.settingsPanel')
       for (let instrument in WaveTables) {
         let instrumentDiv = document.createElement("div")
         instrumentDiv.innerText = instrument
